@@ -15,4 +15,4 @@ const CompanySchema = new Schema({
     }
 })
 
-module.exports =  model('Company', CompanySchema);
+module.exports =  model('Company', CompanySchema, 'companymodels');

@@ -2,34 +2,28 @@ const {
     GraphQLObjectType,
     GraphQLSchema,
     GraphQLID,
-    GraphQLList
+    GraphQLList,
+    GraphQLString
 } = require('graphql');
 
-const { UserModel } = require("../models")
 
-
-const UserSchemaGraphQl = require("./types/User/User")
-const CompanySchemaGraphQl = require("./types/Company/Company");
-
-
+const { UserModel, CompanyModel } = require("../models")
+const { UserSchemaGraphQl, CompanySchemaGraphQl } = require("./types")
+const userArgs = require("./args/userArgs")
 
 const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
     fields: () => (
         {
             user: {
-                type: new GraphQLList(UserSchemaGraphQl),
+                type: UserSchemaGraphQl,
                 args: { id: { type: GraphQLID } },
-                resolve(parentValue, args) {
-                    return UserModel.find()
-                },
+                resolve: (parentValue, { id }) => UserModel.findById(id)
             },
             company: {
-                type: CompanySchemaGraphQl,
+                type: new GraphQLList(CompanySchemaGraphQl),
                 args: { id: { type: GraphQLID } },
-                resolve(parentValue, args){
-                    
-                }
+                resolve: (parentValue, args) => CompanyModel.find()
             }
         }
     )
@@ -37,9 +31,22 @@ const RootQuery = new GraphQLObjectType({
 
 const mutation = new GraphQLObjectType({
     name: 'Mutation',
-    fields: {}
+    fields: {
+        addUser: {
+            type: UserSchemaGraphQl,
+            args: {
+                ...userArgs
+            },
+            resolve: (parentValue, args) => {
+                const newUser = new UserModel(args)
+                newUser.save().then(res => console.log(res)).catch(er => console.log(er))
+                return newUser
+            }
+        }
+    }
 });
 
 module.exports = new GraphQLSchema({
     query: RootQuery,
+    mutation
 });
