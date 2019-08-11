@@ -8,10 +8,6 @@ const CompanySchema = new Schema({
     service: {
         type: String,
         required: true
-    },
-    users: {
-        type: Array,
-        required: true
     }
 })
 
